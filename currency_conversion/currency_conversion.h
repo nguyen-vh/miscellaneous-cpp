@@ -28,24 +28,39 @@
 
 //----------------------------------------------------------------------------//
 
-#ifndef CURRENCY_CONVERSION_HPP
-#define CURRENCY_CONVERSION_HPP
+#ifndef CURRENCY_CONVERSION_H
+#define CURRENCY_CONVERSION_H
+
+//----------------------------------------------------------------------------//
+//*                             === INCLUDES ===                             *//
+//----------------------------------------------------------------------------//
 
 #include <string>
 #include <unordered_map>
 
-// Add more by looking for 1000000 (Currency adding) converted to USD
-// ex. 1000000 EUR -> 1121675.00 USD
+//----------------------------------------------------------------------------//
+//*                       === CURRENCY CONVERSION ===                        *//
+//----------------------------------------------------------------------------//
 
-std::unordered_map<std::string, double> currencyER = {
-    {"USD", 1000000},  {"EUR", 1121675.00}, {"CNY", 139363.10},
-    {"CUP", 41680.94}, {"HKD", 127966.70},  {"INR", 12190.48},
-    {"JPY", 7178.80},  {"KRW", 788.30},     {"SEK", 97401.14},
-    {"TRY", 37945.34}, {"VND", 42.30}};
+// How to add more? Take 1,000,000.00 of the currency you want to add and
+// convert it into EUR. The number you get will be the exchange rate you want to
+// use.  EX.: 1,000,000.00 USD in EUR equals 864,350.00
 
-inline double conversion(const double& amount, const std::string& currencyIN,
-                         const std::string& currencyOUT) {
-  return (amount * (currencyER[currencyIN]) / (currencyER[currencyOUT]));
+// Updated exchange rates on Nov 2025
+std::unordered_map<std::string, double> currency_exchange_rate = {
+    {"EUR", 1'000'000.00}, {"USD", 864'350.00}, {"CNY", 121'387.50},
+    {"CUP", 36'050.37},    {"HKD", 111'074.10}, {"INR", 9'829.37},
+    {"JPY", 5'628.32},     {"KRW", 593.69},     {"SEK", 90'747.41},
+    {"TRY", 20'485.00},    {"VND", 32.85}};
+
+//----------------------------------------------------------------------------//
+
+inline auto currencyConversion(const double& amount_currency_have,
+                               const std::string& name_currency_have,
+                               const std::string& name_currency_want)
+    -> double {
+  return (amount_currency_have * (currency_exchange_rate[name_currency_have]) /
+          (currency_exchange_rate[name_currency_want]));
 }
 
 #endif

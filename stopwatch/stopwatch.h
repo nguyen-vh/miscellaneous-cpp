@@ -68,11 +68,9 @@ class AutomaticStopwatch {
       std::cout << "\033[0m\n";
     }
 
-    const auto m_stop_time = std::chrono::steady_clock::now();
-    const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-        m_stop_time - m_start_time);
-
-    long milliseconds = duration.count();
+    long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            std::chrono::steady_clock::now() - m_start_time)
+                            .count();
     const long seconds = milliseconds / 1000;
     milliseconds %= 1000;
 
@@ -115,13 +113,12 @@ static AutomaticStopwatch _global_stopwatch;
 
 //----------------------------------------------------------------------------//
 
-#define STOP_TIME(NAME)                                                 \
-  do {                                                                  \
-    const auto _stop_time_##NAME = std::chrono::steady_clock::now();    \
-    auto duration_##NAME =                                              \
-        std::chrono::duration_cast<std::chrono::milliseconds>(          \
-            _stop_time_##NAME - _start_time_##NAME);                    \
-    _global_stopwatch.addSectionTiming(#NAME, duration_##NAME.count()); \
+#define STOP_TIME(NAME)                                                   \
+  do {                                                                    \
+    _global_stopwatch.addSectionTiming(                                   \
+        #NAME, std::chrono::duration_cast<std::chrono::milliseconds>(     \
+                   std::chrono::steady_clock::now() - _start_time_##NAME) \
+                   .count());                                             \
   } while (0)
 
 #endif

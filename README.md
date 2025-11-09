@@ -18,7 +18,7 @@
 ## [`hmac_sha256.h`](hmac_sha256)
 
 
-## [`sha2_256.h`](sha2_256)
+## [`sha_2_256.h`](sha_2_256)
 
 
 ## [`currency_conversion.h`](currency_conversion)
