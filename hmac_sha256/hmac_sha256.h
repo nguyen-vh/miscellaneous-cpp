@@ -28,20 +28,21 @@
 
 //----------------------------------------------------------------------------//
 
-#ifndef SHA_2_256_H
-#define SHA_2_256_H
+#ifndef HMAC_SHA256_H
+#define HMAC_SHA256_H
 
 //----------------------------------------------------------------------------//
 //*                             === INCLUDES ===                             *//
 //----------------------------------------------------------------------------//
 
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <iomanip>
+#include <map>
 #include <sstream>
-
-//----------------------------------------------------------------------------//
-//*                            === SHA_2_256 ===                             *//
-//----------------------------------------------------------------------------//
+#include <string>
+#include <vector>
 
 constexpr inline auto rotr(uint32_t x, int n) -> uint32_t {
   return (x >> n) | (x << (32 - n));
@@ -147,4 +148,46 @@ inline auto sha256(const std::string& input_string) -> std::string {
   return result.str();
 }
 
+auto hmac_sha256(const std::string& key, const std::string& message)
+    -> std::string {
+  const int block_size{64};
+  std::string key_padded;
+
+  if (key.length() > block_size) {
+    key_padded = sha256(key);
+  } else {
+    key_padded = key;
+  }
+
+  if (key_padded.length() < block_size) {
+    key_padded.resize(block_size, 0x00);
+  }
+
+  std::string inner_key(block_size, 0x36);
+  std::string outer_key(block_size, 0x5c);
+
+  for (int i = 0; i < block_size; ++i) {
+    inner_key[i] ^= key_padded[i];
+    outer_key[i] ^= key_padded[i];
+  }
+
+  std::string inner_hash{sha256(inner_key + message)};
+  std::string final_hash{sha256(outer_key + inner_hash)};
+
+  return final_hash;
+}
+
 #endif
+
+/*
+
+auto main(int argc, char* argv[]) -> int {
+  std::string key{}, message{};
+  std::cin >> key >> message;
+
+  std::cout << "HMAC-SHA256: " << hmac_sha256(key, message) << std::endl;
+
+  return 0;
+}
+
+*/

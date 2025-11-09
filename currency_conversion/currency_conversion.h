@@ -64,3 +64,14 @@ inline auto currencyConversion(const double& amount_currency_have,
 }
 
 #endif
+
+/*
+
+auto main(int argc, char* argv[]) -> int {
+
+std::cout << currencyConversion(100, "EUR", "USD") << std::endl;
+
+  return 0;
+}
+
+*/
