@@ -1,11 +1,13 @@
 # miscellaneous-cpp
 
 ## Features
-+ dependency-free and no third-party library
-+ headers can just be included and are ready to use
+ + dependency-free/ no third-party library headers
+ + tiny and compact
+ + ready to use headers
 
-[!NOTE]
-Cpp files are creations of boredom.
+
+>[!NOTE]
+>Cpp files are creations of boredom.
     
-[!TIP]
-For best experience have "Better Comments" (VSCode) Extension by Aaron Bond.
+>[!TIP]
+>For best experience have "Better Comments" (VSCode) Extension by Aaron Bond.
