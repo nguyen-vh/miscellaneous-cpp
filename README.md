@@ -1,7 +1,11 @@
-# C++20 and upwards
+# miscellaneous-cpp
 
-All files do not use third party libraries.
-All cpp files compiled and tested with gcc.
-No tests for hpp (header) files.
-All cpp files should be able to run independently.
+## Features
++ dependency-free and no third-party library
++ headers can just be included and are ready to use
+
+[!NOTE]
+Cpp files are creations of boredom.
+    
+[!TIP]
 For best experience have "Better Comments" (VSCode) Extension by Aaron Bond.

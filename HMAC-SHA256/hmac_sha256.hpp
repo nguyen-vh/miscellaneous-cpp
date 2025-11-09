@@ -1,12 +1,46 @@
-// "sha_2_256.hpp"
-// Header for inclusion
+// Copyright (c) 2023-present nguyen-vh
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef SHA_2_256_HPP
-#define SHA_2_256_HPP
+//----------------------------------------------------------------------------//
 
+#pragma once
+
+#ifndef HMAC_SHA256_HPP
+#define HMAC_SHA256_HPP
+
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <iomanip>
+#include <map>
 #include <sstream>
+#include <string>
+#include <vector>
 
 // Right Rotate a 32-bit word by 'n' bits
 constexpr inline uint32_t rotr(uint32_t x, int n) {
@@ -32,7 +66,7 @@ constexpr uint32_t K[64] = {
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
 // SHA-256 Message Schedule (Wt represents the expanded message schedule)
-inline void prepare_schedule(const uint8_t* data, uint32_t* Wt) {
+void prepare_schedule(const uint8_t* data, uint32_t* Wt) {
   for (int t = 0; t < 16; ++t) {
     Wt[t] = static_cast<uint32_t>(data[t * 4]) << 24;
     Wt[t] |= static_cast<uint32_t>(data[t * 4 + 1]) << 16;
@@ -50,7 +84,7 @@ inline void prepare_schedule(const uint8_t* data, uint32_t* Wt) {
 }
 
 // SHA-256 Hashing Function
-inline std::string sha256(const std::string& input_string) {
+std::string sha256(const std::string& input_string) {
   uint32_t H[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
                    0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
@@ -119,6 +153,38 @@ inline std::string sha256(const std::string& input_string) {
   }
 
   return result.str();
+}
+
+std::string hmac_sha256(const std::string& key, const std::string& message) {
+  const int block_size = 64;  // Block size for SHA-256 is 64 bytes
+
+  std::string key_padded;
+  if (key.length() > block_size) {
+    key_padded = sha256(key);
+  } else {
+    key_padded = key;
+  }
+
+  if (key_padded.length() < block_size) {
+    key_padded.resize(block_size, 0x00);
+  }
+
+  std::string inner_key(block_size, 0x36);
+  std::string outer_key(block_size, 0x5c);
+
+  // XOR the keys with the padded key
+  for (int i = 0; i < block_size; ++i) {
+    inner_key[i] ^= key_padded[i];
+    outer_key[i] ^= key_padded[i];
+  }
+
+  // Inner hash (SHA256(inner_key || message))
+  std::string inner_hash = sha256(inner_key + message);
+
+  // Final hash (SHA256(outer_key || inner_hash))
+  std::string final_hash = sha256(outer_key + inner_hash);
+
+  return final_hash;
 }
 
 #endif
