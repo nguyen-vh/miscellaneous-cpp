@@ -8,7 +8,7 @@
  + tiny and compact
  + ready to use
 
-
+----
 ## [`Collection of Snippets`](snippets)
 
 
@@ -24,6 +24,6 @@
 ## [`currency_conversion.h`](currency_conversion)
 
 
-    
+----    
 >[!TIP]
 >For best experience have "Better Comments" (VSCode) Extension by Aaron Bond.
