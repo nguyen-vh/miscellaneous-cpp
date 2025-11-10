@@ -40,7 +40,7 @@
 #include <sstream>
 
 //----------------------------------------------------------------------------//
-//*                            === SHA_2_256 ===                             *//
+//*                            === SHA_256 ===                             *//
 //----------------------------------------------------------------------------//
 
 constexpr inline auto rotr(uint32_t x, int n) -> uint32_t {
@@ -85,8 +85,9 @@ inline auto sha256(const std::string& input_string) -> std::string {
 
   uint64_t input_length{input_string.length() * 8};
 
-  const int padding_length{(448 - (input_length + 1)) % 512};
-  const int total_length{input_length + 1 + padding_length + 64};
+  const long long unsigned int padding_length{(448 - (input_length + 1)) % 512};
+  const long long unsigned int total_length{input_length + 1 + padding_length +
+                                            64};
   uint8_t* padded_data = new uint8_t[total_length / 8]{};
   std::memcpy(padded_data, input_string.c_str(), input_string.length());
   padded_data[input_string.length()] = 0x80;

@@ -1,4 +1,4 @@
-// Copyright (c) 2023-present nguyen-vh
+// Copyright (c) 2025-present nguyen-vh
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,21 +28,31 @@
 
 //----------------------------------------------------------------------------//
 
-#ifndef HMAC_SHA256_H
-#define HMAC_SHA256_H
+#ifndef PROGRAM_HASH_H
+#define PROGRAM_HASH_H
 
 //----------------------------------------------------------------------------//
 //*                             === INCLUDES ===                             *//
 //----------------------------------------------------------------------------//
 
-#include <algorithm>
-#include <cstdint>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+
+#if __has_include("sha256.h")
+#include "sha256.h"
+#endif
+
+#ifndef SHA256_H
+
 #include <cstring>
 #include <iomanip>
-#include <map>
 #include <sstream>
-#include <string>
-#include <vector>
+
+//----------------------------------------------------------------------------//
+//*                            === SHA_256 ===                             *//
+//----------------------------------------------------------------------------//
 
 constexpr inline auto rotr(uint32_t x, int n) -> uint32_t {
   return (x >> n) | (x << (32 - n));
@@ -149,46 +159,132 @@ inline auto sha256(const std::string& input_string) -> std::string {
   return result.str();
 }
 
-auto hmac_sha256(const std::string& key, const std::string& message)
-    -> std::string {
-  const int block_size{64};
-  std::string key_padded;
-
-  if (key.length() > block_size) {
-    key_padded = sha256(key);
-  } else {
-    key_padded = key;
-  }
-
-  if (key_padded.length() < block_size) {
-    key_padded.resize(block_size, 0x00);
-  }
-
-  std::string inner_key(block_size, 0x36);
-  std::string outer_key(block_size, 0x5c);
-
-  for (int i = 0; i < block_size; ++i) {
-    inner_key[i] ^= key_padded[i];
-    outer_key[i] ^= key_padded[i];
-  }
-
-  std::string inner_hash{sha256(inner_key + message)};
-  std::string final_hash{sha256(outer_key + inner_hash)};
-
-  return final_hash;
-}
-
 #endif
 
-/*
+class AutomaticProgramHash {
+  std::string m_program_hash{
+      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"};
 
-auto main(int argc, char* argv[]) -> int {
-  std::string key{}, message{};
-  std::cin >> key >> message;
+ public:
+  AutomaticProgramHash() {
+    processFile(detectMainFile());
+    m_hash = computeCombinedHash();
 
-  std::cout << "HMAC-SHA256: " << hmac_sha256(key, message) << std::endl;
+    if (m_program_hash.empty() || m_program_hash == m_hash ||
+        m_program_hash == m_hash_placeholder) {
+      // do nothing
+    } else {
+      std::string input{};
 
-  return 0;
-}
+      std::cout << "\033[31m"
+                << "Current Hash: " << m_hash
+                << "\nWARNING: Program has been modified.\nEnter '1' to exit "
+                   "now, else continue."
+                << "\033[0m\n";
 
-*/
+      std::getline(std::cin, input);
+
+      if (input == "1") {
+        std::exit(EXIT_FAILURE);
+      }
+    }
+  }
+
+  ~AutomaticProgramHash() {
+    std::cout << "------------------------------\n";
+
+    if (m_program_hash.empty()) {
+      std::cout << "NO HASH HAS BEEN SET." << std::endl;
+    } else if (m_program_hash == m_hash_placeholder) {
+      std::cout << "CHANGE HASH TO: " << "\033[36m" << m_hash << "\033[0m\n";
+    }
+  };
+
+  auto getIncludedFiles();
+
+  auto readFile(const std::string& path) -> std::string {
+    std::ifstream file(path);
+    if (!file) return "// cannot open " + path + "\n";
+
+    std::string content{};
+    std::string line{};
+    bool skipping{false};
+
+    while (std::getline(file, line)) {
+      if (!skipping) {
+        std::string trimmed = line;
+        trimmed.erase(0, trimmed.find_first_not_of(" \t"));
+
+        if (trimmed.find("std::string m_program_hash") == 0) {
+          size_t semicolonPos = line.find(';');
+          if (semicolonPos != std::string::npos) {
+            continue;
+          } else {
+            skipping = true;
+            continue;
+          }
+        }
+        content += line + "\n";
+      } else {
+        size_t semicolonPos = line.find(';');
+        if (semicolonPos != std::string::npos) {
+          skipping = false;
+        }
+      }
+    }
+
+    return content;
+  }
+
+ private:
+  // file name, file code
+  std::unordered_map<std::string, std::string> m_include_files;
+  std::string m_hash{};
+  std::string m_hash_placeholder{
+      "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"};
+
+  auto processFile(const std::string& filename) -> void {
+    if (m_include_files.find(filename) != m_include_files.end()) return;
+
+    std::string content = readFile(filename);
+    m_include_files[filename] = content;
+
+    size_t pos = 0;
+    while ((pos = content.find("#include \"", pos)) != std::string::npos) {
+      size_t start = pos + 10;
+      size_t end = content.find("\"", start);
+
+      if (end != std::string::npos) {
+        std::string include_file = content.substr(start, end - start);
+        processFile(include_file);
+        pos = end + 1;
+      } else {
+        break;
+      }
+    }
+  }
+
+  auto computeCombinedHash() -> std::string {
+    std::string combined{};
+
+    for (const auto& [filename, content] : m_include_files) {
+      combined += "FILE:" + filename + "\n" + content + "\n\n";
+    }
+
+    return sha256(combined);
+  }
+
+  std::string detectMainFile() {
+#ifdef __GNUC__
+#ifdef __BASE_FILE__
+    return __BASE_FILE__;
+#else
+    return __FILE__;
+#endif
+#endif
+  }
+};
+
+static AutomaticProgramHash _global_program_hash;
+
+#endif
