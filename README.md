@@ -33,7 +33,7 @@
    USD, CYN, CUP, HKD, INR, JPY, KRW, SEK, TRY and VND, but can be easily expended and updated.
 
 
-## [`program_hash.h`](program_hash)
+## [`program_hash.h`](program_hash/program_hash.h)
    By including, a simple program-wide hash can be set up for all user-defined #includes. After the first program execution, the output
    hash should be copied at the end and pasted into '*m_program_hash*'. The following code executions perform a code integrity test
    before the main() function is executed and provides the option to terminate the program immediately if the hashes do not match.
