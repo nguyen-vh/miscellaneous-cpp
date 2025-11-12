@@ -44,6 +44,12 @@
 #include <string>
 #include <vector>
 
+#if __has_include("sha256.h")
+#include "sha256.h"
+#endif
+
+#ifndef SHA256_H
+
 constexpr inline auto rotr(uint32_t x, int n) -> uint32_t {
   return (x >> n) | (x << (32 - n));
 }
@@ -148,6 +154,8 @@ inline auto sha256(const std::string& input_string) -> std::string {
 
   return result.str();
 }
+
+#endif
 
 auto hmac_sha256(const std::string& key, const std::string& message)
     -> std::string {
