@@ -28,8 +28,8 @@
 
 //----------------------------------------------------------------------------//
 
-#ifndef CURRENCY_CONVERSION_H
-#define CURRENCY_CONVERSION_H
+#ifndef CURRENCY_CONVERSION_HPP
+#define CURRENCY_CONVERSION_HPP
 
 //----------------------------------------------------------------------------//
 //*                             === INCLUDES ===                             *//

@@ -1,0 +1,48 @@
+//* Todo-Tree
+"better-todo-tree.general.tagGroups": {
+  "TODO": [
+    "TODO",
+    "todo"
+  ],
+  "BUG": [
+    "BUG",
+    "bug",
+    "FIX",
+    "fix",
+    "FIXME",
+    "fixme"
+  ],
+  "MARK": [
+    "MARK",
+    "mark"
+  ]
+},
+"better-todo-tree.general.tags": [
+  "TODO",
+  "todo",
+  "BUG",
+  "bug",
+  "FIX",
+  "fix",
+  "FIXME",
+  "fixme",
+  "MARK",
+  "mark"
+],
+"better-todo-tree.highlights.customHighlight": {
+  "TODO": {
+    "icon": "checklist"
+  },
+  "BUG": {
+    "icon": "bug"
+  },
+  "MARK": {
+    "icon": "bookmark"
+  }
+},
+"better-todo-tree.highlights.enabled": false,
+"better-todo-tree.tree.labelFormat": "${tag:uppercase}${after}",
+"better-todo-tree.tree.scanAtStartup": true,
+"better-todo-tree.tree.tooltipFormat": "${filename}:[${line}] in ${filepath}",
+"better-todo-tree.regex.regex": "((//|#|<!--|;|/\\*|^)((\\s+(!|\\?|\\*|\\-))?(\\s+\\[ \\])?|(\\s+(!|\\?|\\*)\\s+\\[.\\])?)\\s*($TAGS)\\s*\\:)",
+"better-todo-tree.ripgrep.ripgrep": "C:\\ProgramData\\chocolatey\\bin\\rg.exe",
